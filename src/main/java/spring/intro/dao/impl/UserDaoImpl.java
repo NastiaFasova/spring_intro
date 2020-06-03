@@ -44,18 +44,12 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> listUsers() {
-        Session session = null;
-        try {
-            session = sessionFactory.openSession();
+        try (Session session = sessionFactory.openSession()) {
             Query<User> query = session.createQuery("from User", User.class);
             LOGGER.info("Users were successfully retrieved from the DB");
             return query.list();
         } catch (Exception e) {
             throw new DataProcessingException("Error retrieving all users", e);
-        } finally {
-            if (session != null) {
-                session.close();
-            }
         }
     }
 }
