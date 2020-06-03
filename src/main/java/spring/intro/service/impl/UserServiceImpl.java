@@ -9,12 +9,9 @@ import spring.intro.service.UserService;
 
 @Service
 public class UserServiceImpl implements UserService {
-    private final UserDao userDao;
 
     @Autowired
-    public UserServiceImpl(UserDao userDao) {
-        this.userDao = userDao;
-    }
+    private UserDao userDao;
 
     @Override
     public void add(User user) {
