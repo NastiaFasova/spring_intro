@@ -6,7 +6,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import spring.intro.dao.UserDao;
 import spring.intro.exception.DataProcessingException;
@@ -17,8 +16,11 @@ public class UserDaoImpl implements UserDao {
 
     private static final Logger LOGGER = Logger.getLogger(UserDaoImpl.class);
 
-    @Autowired
-    private SessionFactory sessionFactory;
+    private final SessionFactory sessionFactory;
+
+    public UserDaoImpl(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
 
     @Override
     public void add(User user) {
@@ -50,6 +52,23 @@ public class UserDaoImpl implements UserDao {
             return query.list();
         } catch (Exception e) {
             throw new DataProcessingException("Error retrieving all users", e);
+        }
+    }
+
+    @Override
+    public User get(Long userId) {
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
+            User user = session.get(User.class, userId);
+            transaction.commit();
+            LOGGER.info("The user was successfully retrieved");
+            return user;
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw new DataProcessingException("Can't get user entity", e);
         }
     }
 }
